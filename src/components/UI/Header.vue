@@ -3,7 +3,7 @@
     <template #default>
       <div class="container">
         <n-space align="center" justify="space-between">
-          <img class="header__logo" src="src/assets/img/ultra.png" alt="logo">
+          <img class="header__logo" src="@/assets/img/ultra.png" alt="logo">
           <n-space align="center" class="header__user">
             <n-avatar
                 class="header__user-avatar"

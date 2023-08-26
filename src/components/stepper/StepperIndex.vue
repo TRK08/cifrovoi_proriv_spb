@@ -2,7 +2,7 @@
   <div class="stepper">
     <n-card>
       <BaseStep v-if="currentStep <= data.length - 1" :title="titles[currentStep]" :data="data[currentStep]" />
-      <PdfStep v-else :pdf="pdf" />
+      <PdfStep v-else-if="currentStep === data.length && pdf" :pdf="pdf" />
       <template #action>
         <n-space justify="space-between">
           <n-button v-show="currentStep > 0 && currentStep < data.length" :disabled="isLoading" secondary round type="primary" @click="prevStep">

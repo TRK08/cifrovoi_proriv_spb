@@ -3,7 +3,8 @@ import type {IStepData} from "@/types/types";
 
 
 interface IState {
-    currentStep: number,
+    currentStep: number
+    steps: string[]
     data: Array<IStepData[]>
 }
 export const useStepper = defineStore('stepper', {
@@ -32,7 +33,7 @@ export const useStepper = defineStore('stepper', {
                 [
                     {
                         label: 'Сотрудник',
-                        value: ''
+                        value: '',
                     },
                 ],
                 [
