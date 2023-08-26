@@ -26,6 +26,11 @@ export const useStepper = defineStore('stepper', {
                         label: 'Рынок',
                         value: '',
                         key: 'market'
+                    },
+                    {
+                        label: 'Продукт',
+                        value: '',
+                        key: 'field'
                     }
                 ],
                 team: [
