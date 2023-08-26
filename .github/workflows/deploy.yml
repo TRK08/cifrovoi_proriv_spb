@@ -3,7 +3,7 @@ name: Deploy
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   build:
@@ -14,18 +14,10 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Set Node.js 16.x
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16.x
-
-      - name: Run install
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: install # will run `yarn install` command
-
       - name: Build project
-        run: yarn build
+        run: |
+          npm ci
+          npm run build
 
       - name: Upload production-ready build files
         uses: actions/upload-artifact@v3
