@@ -96,17 +96,17 @@ const loadPresentation = async() => {
 
 
 const setRequestBody = (dataFromStore: any[]) => {
-  const reqObj = {}
+  const reqObj = {} as { [key: string]: any }
   for (let [key, value] of Object.entries(dataFromStore)) {
     if (key === 'team') {
-      reqObj[key] = value.map((item) => {
+      reqObj[key] = value.map((item: {key: string, value: string}) => {
         return {
           name: item.key,
           role: item.value
         }
       })
     } else {
-      reqObj[key] = value.reduce((acc, item) => {
+      reqObj[key] = value.reduce((acc: { [key: string]: any }, item: {key: string, value: string}) => {
         acc[item.key] = item.value
         return acc
       }, {})
