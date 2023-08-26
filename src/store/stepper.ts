@@ -1,19 +1,17 @@
 import { defineStore } from 'pinia'
-import type {IStepData} from "@/types/types";
-
 
 interface IState {
     currentStep: number
     steps: string[]
-    data: Array<IStepData[]>
+    data: any
 }
 export const useStepper = defineStore('stepper', {
     state: (): IState => {
         return {
             currentStep: 0,
-            steps: ['product', 'company', 'economy'],
-            data: [
-                [
+            steps: ['product', 'team', 'economy', 'presentation'],
+            data: {
+                product: [
                     {
                         label: 'Идея',
                         value: '',
@@ -30,46 +28,57 @@ export const useStepper = defineStore('stepper', {
                         key: 'market'
                     }
                 ],
-                [
+                team: [
                     {
-                        label: 'Сотрудник',
-                        value: '',
+                        key: '',
+                        value: ''
                     },
                 ],
-                [
+                economy: [
                     {
                         label: 'Клиенты',
                         value: '',
-                        key: 'number_of_clients'
+                        key: 'number_of_clients',
+                        tooltip: 'Количество клиентов, которые пользуются вашими услугами.'
                     },
                     {
                         label: 'Доход',
                         value: '',
-                        key: 'revenue'
+                        key: 'revenue',
+                        tooltip: 'Общий доход от продаж.'
                     },
                     {
                         label: 'APRU',
                         value: '',
-                        key: 'APRU'
+                        key: 'APRU',
+                        tooltip: 'ARPU, или средняя выручка на одного пользователя — это метрика, которая помогает оценить ценность продукта с точки зрения клиентов. ARPU показывает, сколько денег в среднем приносит компании один пользователь за определенный промежуток времени.'
                     },
                     {
                         label: 'churn_rate',
                         value: '',
-                        key: 'churn_rate'
+                        key: 'churn_rate',
+                        tooltip: 'Доля ушедших клиентов.'
                     },
                     {
                         label: 'LT',
                         value: '',
-                        key: 'LT'
+                        key: 'LT',
+                        tooltip: 'Срок жизни (LT) — время, которое клиент пользуется вашими услугами. Или сколько месяцев прошло между первым и последним заказом.'
                     },
                     {
                         label: 'LTV',
                         value: '',
-                        key: 'LTV'
+                        key: 'LTV',
+                        tooltip: 'Пожизненная ценность клиента (LTV) — сколько клиент заплатил вам денег за срок жизни.'
                     },
                 ],
-            ]
+            }
         }
     },
+    getters: {
+        stepName: (state) => {
+            return state.steps[state.currentStep]
+        }
+    }
 })
 

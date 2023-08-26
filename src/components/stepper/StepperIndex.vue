@@ -1,24 +1,24 @@
 <template>
   <div class="stepper">
     <n-card>
-      <BaseStep v-if="currentStep <= data.length - 1" :title="titles[currentStep]" :data="data[currentStep]" />
-      <PdfStep v-else-if="currentStep === data.length && pdf" :pdf="pdf" />
+      <BaseStep v-if="stepName !== 'presentation'" :stepName="stepName" :title="titles[currentStep]" :data="data[stepName]" @updateCompanyData="data[stepName] = $event"/>
+      <PdfStep v-else-if="stepName === 'presentation' && pdf" :pdf="pdf" />
       <template #action>
         <n-space justify="space-between">
-          <n-button v-show="currentStep > 0 && currentStep < data.length" :disabled="isLoading" secondary round type="primary" @click="prevStep">
+          <n-button v-show="stepName !== 'product' && stepName !== 'presentation'" :disabled="isLoading" secondary round type="primary" @click="prevStep">
             <n-icon :component="ArrowBack" style="margin-right: 0.5rem;" ></n-icon>
             <span>Предыдущий шаг</span>
           </n-button>
-          <n-button v-if="currentStep < data.length - 1" secondary round type="primary" @click="nextStep" :disabled="!isValid">
+          <n-button v-if="stepName !== 'economy' && stepName !== 'presentation'" secondary round type="primary" @click="nextStep" :disabled="!isValid">
             <span>Следующий шаг</span>
             <n-icon :component="ArrowForward" style="margin-left: 0.5rem;" ></n-icon>
           </n-button>
-          <n-button v-else-if="currentStep === data.length - 1" primary round type="info" :disabled="isLoading || !isValid" :loading="isLoading" @click="loadPresentation">
+          <n-button v-else-if="stepName === 'economy'" primary round type="info" :disabled="isLoading || !isValid" :loading="isLoading" @click="loadPresentation">
             <span>Получить презентацию</span>
             <n-icon :component="ArrowForward" style="margin-left: 0.5rem;" ></n-icon>
           </n-button>
         </n-space>
-        <n-space v-if="currentStep > data.length - 1" justify="center">
+        <n-space v-if="stepName === 'presentation'" justify="center">
           <n-button  :disabled="isLoading" secondary round type="primary" @click="toStart">
             <span>Начать сначала</span>
           </n-button>
@@ -34,10 +34,9 @@ import {useStepper} from "@/store/stepper";
 import {ArrowForward, ArrowBack} from "@vicons/ionicons5";
 import BaseStep from "@/components/stepper/BaseStep.vue";
 import axios, { isAxiosError} from "axios";
-import {computed, onMounted, ref} from "vue";
+import {computed, ref} from "vue";
 import {useNotification} from "naive-ui";
 import PdfStep from "@/components/stepper/PdfStep.vue";
-
 
 
 const titles = ['Продукт', 'Компания', 'Экономическая модель']
@@ -45,12 +44,14 @@ const pdf = ref<string | null>(null)
 const isLoading = ref(false)
 const notification = useNotification()
 const stepperStore = useStepper()
-const {data, currentStep} = storeToRefs(useStepper())
+const {data, currentStep, stepName} = storeToRefs(useStepper())
 
 const isValid = computed(() => {
   let isValid = true
-
-  for (let item of data.value[currentStep.value]) {
+  if (stepName.value === 'presentation') {
+    return
+  }
+  for (let item of data.value[stepName.value]) {
     if (!item.value) {
       isValid = false
       break
@@ -67,34 +68,13 @@ const prevStep = () => {
 
 const toStart = () => {
   stepperStore.$reset()
-  // currentStep.value = 0
 }
 
 const loadPresentation = async() => {
-  setRequestBody()
   isLoading.value = true
+  const body = setRequestBody(data.value)
   try {
-    const res = await axios.post('https://13-50-75-136.nip.io/api/v1/base64/generate', {
-      "product": {
-        "idea": "asdasd",
-        "market": "stridasdsang",
-        "roadmap": "stdsadsaring"
-      },
-      "team": [
-        {
-          "name": "string",
-          "role": "string"
-        }
-      ],
-      "economy": {
-        "revenue": 0,
-        "number_of_clients": 0,
-        "APRU": 0,
-        "churn_rate": 0,
-        "LT": 0,
-        "LTV": 0
-      }
-    })
+    const res = await axios.post('https://13-50-75-136.nip.io/api/v1/base64/generate', body)
     if (res?.data) {
       pdf.value = `data:application/pdf;base64,${res.data.pdf}`
       nextStep()
@@ -115,18 +95,24 @@ const loadPresentation = async() => {
 }
 
 
-const setRequestBody = () => {
-  console.log(data.value, 'DATA')
-
-  // const objectKeys = ['product', 'team', 'economy']
-  // const obj = {}
-  // data.value.map((cat, idx) => {
-  //
-  // const test = cat.map(item => {
-  //   obj.objectKeys[idx] = item
-  // })
-  // console.log(test)
-  // })
+const setRequestBody = (dataFromStore: any[]) => {
+  const reqObj = {}
+  for (let [key, value] of Object.entries(dataFromStore)) {
+    if (key === 'team') {
+      reqObj[key] = value.map((item) => {
+        return {
+          name: item.key,
+          role: item.value
+        }
+      })
+    } else {
+      reqObj[key] = value.reduce((acc, item) => {
+        acc[item.key] = item.value
+        return acc
+      }, {})
+    }
+  }
+  return reqObj
 
 }
 
